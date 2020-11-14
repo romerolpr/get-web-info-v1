@@ -1,16 +1,29 @@
-# Bem vindo ao GetWebInfo v1.0 | Welcome to the GetWebInfo v1.0
-
-## Configuração e preparação do ambiente | Let's prepare and configure the machine
+# GetWebInfo v 1.0
+* Sitemap, Server and Certificate SSL
 
 ## PT-BR
+
+## Configuração e preparação do ambiente
 * Instale o Python na sua máquina.
 * Instale todas as bibliotecas utilizando o comando "pip install" no cmd. 
 
+## Objetivos da aplicação
+* Realizar validações da existência do sitemap e possíveis erros de links.
+* Verificar em uma lista se os sites contidos estão dentro dos servidores definidos no código.
+* Verificar se os sites possuem certificado válido de ssl
+
 ## EN
+
+## Prepare and configure the ambient
 * Install Python on your machine
 * Install all packages using the comand "pip install" on cmd
 
-## Pacotes para instalar | Packages to install
+## Objectives
+* Check the existence of the sitemap and possibles of errors
+* Check the list of sites that are on defined server lists.
+* Check the certificate of the sites lists.
+
+## Pacotes para instalar / Packages to install
 
 ```bash
 pip install beautifulsoup4
