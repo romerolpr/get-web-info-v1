@@ -1,4 +1,3 @@
-# Definir idioma | set language
 # PT = 0
 # EN = 1
 
@@ -8,6 +7,8 @@ from tqdm.auto import tqdm
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from colorama import Fore, Style
+from pathlib import Path
+
 import threading
 import re
 import socket
@@ -16,7 +17,7 @@ class Validador:
 
 	def __init__(self, lang=0):
 		self.lang = lang
-		self.path = 'Resultados'
+		self.path = 'Resultados' if self.lang == 0 else 'Results'
 		self.servidores = [
 			'172.217.28.78',
 			'157.240.222.35',
@@ -25,16 +26,18 @@ class Validador:
 			'35.172.167.44',
 		]
 
-	def Set_language(self, lang, config=False):
+		Path(f'./{self.path}').mkdir(parents=True, exist_ok=True)
+
+	def Set_language(self, config=False):
 
 		Sitemap = [
-			'Fora do servidor'
+			'Fora do servidor',
 			'Sitemap correto', 
 			'Sitemap incorreto', 
 			'Sitemap inexistente',
 			'Sitemap não recuperado',
 			'Não recuperado'
-		] if lang == 0 else [
+		] if self.lang == 0 else [
 			'Off the server', 
 			'Sitemap correct', 
 			'Sitemap invalid', 
@@ -49,7 +52,7 @@ class Validador:
 			'Tag não recuperada',
 			'Cerificado inválido',
 			'Domínio congelado'
-		] if lang == 0 else [
+		] if self.lang == 0 else [
 			'Off the server', 
 			'Tag recovered', 
 			'Tag not recovered',
@@ -61,7 +64,7 @@ class Validador:
 			'Fora do servidor', 
 			'Dentro do servidor', 
 			'Não recuperado'
-		] if lang == 0 else [
+		] if self.lang == 0 else [
 			'Off the server', 
 			'Inside the server', 
 			'Not recovered'
@@ -72,7 +75,7 @@ class Validador:
 			'SSL ativo', 
 			'SSL não ativo'
 			'Não recuperado'
-		] if lang == 0 else [
+		] if self.lang == 0 else [
 			'Off the server', 
 			'SSL active', 
 			'SSL not active', 
@@ -107,8 +110,9 @@ class Validador:
 	def Tag(self, url):
 		Def = 'tag'
 		try:
+			Path(f'./{self.path}/' + Def).mkdir(parents=True, exist_ok=True)
 			if self.Saiu(url):
-				with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
+				with open(self.path + f'/{Def}/' + self.Set_language(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
 					file.write('{} => {}\n'.format(url, self.Saiu(url)))
 			else:
 				try:
@@ -116,63 +120,65 @@ class Validador:
 					html = BeautifulSoup(request, "html5lib");
 					try:
 						script = re.search(r"ga\('(create)',\s+'(.*?)',(.*?)\s+'(.*?)'\);", str(html.body)).group(2)
-						with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[1] + '.txt', 'a', encoding='utf-8') as file:
+						with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', 'a', encoding='utf-8') as file:
 							file.write(f'{url}: {script}\n')
 					except:
 						try:
 							script = re.search(r"gtag\([\"\']config[\"\'].*?[\"\'](.*?)[\"\']\);", str(html.body)).group(1)
-							with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[1] + '.txt', 'a', encoding='utf-8') as file:
+							with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', 'a', encoding='utf-8') as file:
 								file.write(f'{url}: {script}\n')
 						except:
-							with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[2] + '.txt', 'a', encoding='utf-8') as file:
+							with open(self.path + f'/{Def}/' + self.Set_language(Def)[2] + '.txt', 'a', encoding='utf-8') as file:
 								file.write(f'{url}\n')
 				except:
-					with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[3] + '.txt', 'a', encoding='utf-8') as file:
+					with open(self.path + f'/{Def}/' + self.Set_language(Def)[3] + '.txt', 'a', encoding='utf-8') as file:
 						file.write(f'{url}\n')
 		except:
-			with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[4] + '.txt', 'a', encoding='utf-8') as file:
+			with open(self.path + f'/{Def}/' + self.Set_language(Def)[4] + '.txt', 'a', encoding='utf-8') as file:
 				file.write(f'{url}\n')
 
 	def Servidor(self, url):
-		Def = 'servidor'
+		Def = 'servidor' if self.lang == 0 else 'server'
 		try:
+			Path(f'./{self.path}/' + Def).mkdir(parents=True, exist_ok=True)
 			if self.Saiu(url):
-				with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
+				with open(self.path + f'/{Def}/' + self.Set_language(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
 					file.write('{} => {}\n'.format(url, self.Saiu(url)))
 			else:
-				with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[1] + '.txt', "a", -1, encoding='utf-8') as file:
+				with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', "a", -1, encoding='utf-8') as file:
 					file.write(f'{url} => {self.Saiu(url, test=True)}\n')
 		except:
-			with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[2] + '.txt', 'a', encoding='utf-8') as file:
+			with open(self.path + f'/{Def}/' + self.Set_language(Def)[2] + '.txt', 'a', encoding='utf-8') as file:
 				file.write(f'{url}\n')
 
 	def Certificado_SSL(self, url):
 		Def = 'ssl'
 		try:
+			Path(f'./{self.path}/' + Def).mkdir(parents=True, exist_ok=True)
 			if self.Saiu(url):
-				with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
+				with open(self.path + f'/{Def}/' + self.Set_language(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
 					file.write('{} => {}\n'.format(url, self.Saiu(url)))
 			else:
 				try:
 					request = urlopen(f"https://www.{url}/").read()
-					with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[1] + '.txt', "a", -1, encoding='utf-8') as file:
+					with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', "a", -1, encoding='utf-8') as file:
 						file.write(f'{url}\n')
 				except:
-					with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[2] + '.txt', "a", -1, encoding='utf-8') as file:
+					with open(self.path + f'/{Def}/' + self.Set_language(Def)[2] + '.txt', "a", -1, encoding='utf-8') as file:
 						file.write(f'{url}\n')
 		except:
-			with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[3] + '.txt', 'a', encoding='utf-8') as file:
+			with open(self.path + f'/{Def}/' + self.Set_language(Def)[3] + '.txt', 'a', encoding='utf-8') as file:
 				file.write(f'{url}\n')
 
 	def Sitemap(self, url):
 
 		Def = 'sitemap'
-
 		http = [ f'https://www.{url}/', f'https://{url}', f'http://{url}', f'http://www.{url}/' ]
 
 		try:
+			Path(f'./{self.path}/' + Def).mkdir(parents=True, exist_ok=True)
 			if self.Saiu(url):
-				with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
+				with open(self.path + f'/{Def}/' + self.Set_language(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
 					file.write('{} => {}\n'.format(url, self.Saiu(url)))
 			else:
 				try:
@@ -189,44 +195,44 @@ class Validador:
 
 					if sitemap[0]:
 						if len(sitemap[0]) in range(20, 10001):
-							with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
-								arquivo.write(f'{url} => https com www\n')
+							with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+								arquivo.write(f'{url} => https://www\n')
 						else:
-							with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+							with open(self.path + f'/{Def}/' + self.Set_language(Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
 								arquivo.write(f'{url}\n')
 						
 					elif sitemap[1]:
 						if len(sitemap[1]) in range(20, 10001):
-							with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
-								arquivo.write(f'{url} => https sem www\n')
+							with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+								arquivo.write(f'{url} => https://\n')
 						else:
-							with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+							with open(self.path + f'/{Def}/' + self.Set_language(Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
 								arquivo.write(f'{url}\n')
 							
 					elif sitemap[2]:
 						if len(sitemap[2]) in range(20, 10001):
-							with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
-								arquivo.write(f'{url} => http sem www\n')
+							with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+								arquivo.write(f'{url} => http://\n')
 						else:
-							with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+							with open(self.path + f'/{Def}/' + self.Set_language(Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
 								arquivo.write(f'{url}\n')
 								
 					elif sitemap[3]:
 						if len(sitemap[3]) in range(20, 10001):
-							with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
-								arquivo.write(f'{url} => http com www\n')
+							with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+								arquivo.write(f'{url} => http://www\n')
 						else:
-							with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+							with open(self.path + f'/{Def}/' + self.Set_language(Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
 								arquivo.write(f'{url}\n')
 					else:
-						with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[3] + '.txt', 'a', encoding='utf-8') as file:
+						with open(self.path + f'/{Def}/' + self.Set_language(Def)[3] + '.txt', 'a', encoding='utf-8') as file:
 							file.write(f'{url}\n')
 
 				except:
-					with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[4] + '.txt', 'a', encoding='utf-8') as file:
+					with open(self.path + f'/{Def}/' + self.Set_language(Def)[4] + '.txt', 'a', encoding='utf-8') as file:
 						file.write(f'{url}\n')
 		except:
-			with open(self.path + f'/{Def}/' + self.Set_language(0, Def)[5] + '.txt', 'a', encoding='utf-8') as file:
+			with open(self.path + f'/{Def}/' + self.Set_language(Def)[5] + '.txt', 'a', encoding='utf-8') as file:
 				file.write(f'{url}\n')
 
 validador = Validador(lang)
@@ -239,7 +245,9 @@ def crawler(arquivo):
 			for i in linha:
 				arrayUrl.append(i.strip("\n").strip(" "))
 
-			for url in tqdm(arrayUrl, desc="Validando os links"):
+			desc = 'Validando links' if lang == 0 else 'Checking the links'
+
+			for url in tqdm(arrayUrl, desc=desc):
 				validador.Sitemap(url)
 				# threading.Thread(
 				#     target=validador.Tag,
