@@ -19,12 +19,22 @@ class Validador:
 		self.lang = lang
 		self.path = 'Resultados' if self.lang == 0 else 'Results'
 		self.servidores = [
-			'172.217.28.78',
-			'157.240.222.35',
-			'104.244.45.65',
-			'172.217.162.110',
-			'35.172.167.44',
+			'169.57.141.90',
+			'169.57.141.88',
+			'169.57.141.86',
+			'169.57.169.70',
+			'169.57.169.72',
+			'169.57.141.85',
+			'169.57.169.85',
+			'169.57.169.91',
+			'169.57.169.73',
+			'169.57.141.94',
 		]
+		self.Val = {
+			'Cerificado SSL' : True,
+			'Tag'			 : True,
+			'Sitemap'		 : True,
+		}
 
 		Path(f'./{self.path}').mkdir(parents=True, exist_ok=True)
 
@@ -73,7 +83,7 @@ class Validador:
 		SSL = [
 			'Fora do servidor', 
 			'SSL ativo', 
-			'SSL não ativo'
+			'SSL não ativo',
 			'Não recuperado'
 		] if self.lang == 0 else [
 			'Off the server', 
@@ -235,6 +245,54 @@ class Validador:
 			with open(self.path + f'/{Def}/' + self.Set_language(Def)[5] + '.txt', 'a', encoding='utf-8') as file:
 				file.write(f'{url}\n')
 
+	def Start(self, url, case=False):
+		try:
+			if not case:
+				if self.Val['Cerificado SSL']:
+					threading.Thread(
+					    target=validador.Certificado_SSL,
+					    args=(url,)).start()
+				if self.Val['Tag']:
+					threading.Thread(
+					    target=validador.Tag,
+					    args=(url,)).start()
+				if self.Val['Sitemap']:
+					threading.Thread(
+					    target=validador.Sitemap,
+					    args=(url,)).start()
+			else:
+				itens = case.split(',')
+				try:
+					for i in itens:
+						if i.lower() == 'certificado ssl' or itens.lower() == 'certificado ssl':
+							threading.Thread(
+							    target=validador.Certificado_SSL,
+							    args=(url,)).start()
+						if i.lower() == 'servidor' or itens.lower() == 'servidor':
+							threading.Thread(
+							    target=validador.Servidor,
+							    args=(url,)).start()
+						if i.lower() == 'saiu' or itens.lower() == 'saiu':
+							threading.Thread(
+							    target=validador.Saiu,
+							    args=(url,)).start()
+						if i.lower() == 'tag' or itens.lower() == 'tag':
+							threading.Thread(
+							    target=validador.Saiu,
+							    args=(url,)).start()
+						if i.lower() == 'sitemap' or itens.lower() == 'sitemap':
+							threading.Thread(
+							    target=validador.Saiu,
+							    args=(url,)).start()
+				except:
+					res = 'Não foi possível iniciar os módulos indicados.' if self.lang == 0 else 'We couldn\'t start the methods given.'
+					res += '\nIniciando validação padrão...' if self.lang == 0 else 'Starting standard modules...'
+					self.Start(url, False)
+		except:
+			res = 'Não foi possível iniciar os métodos.' if self.lang == 0 else 'Unable to start modules.'
+			
+		return res
+
 validador = Validador(lang)
 
 def crawler(arquivo):  
@@ -244,14 +302,10 @@ def crawler(arquivo):
 			arrayUrl = []
 			for i in linha:
 				arrayUrl.append(i.strip("\n").strip(" "))
-
 			desc = 'Validando links' if lang == 0 else 'Checking the links'
-
 			for url in tqdm(arrayUrl, desc=desc):
-				validador.Sitemap(url)
-				# threading.Thread(
-				#     target=validador.Tag,
-				#     args=(url,)).start()
+				validador.Start(url)
+				
 		return True
 	except:
 		return False
