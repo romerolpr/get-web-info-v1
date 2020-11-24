@@ -19,16 +19,16 @@ class Validador:
 		self.lang = lang
 		self.path = 'Resultados' if self.lang == 0 else 'Results'
 		self.servidores = [
-			'XXX.XX.XXX.XX',
-			'XXX.XX.XXX.XX',
-			'XXX.XX.XXX.XX',
-			'XXX.XX.XXX.XX',
-			'XXX.XX.XXX.XX',
-			'XXX.XX.XXX.XX',
-			'XXX.XX.XXX.XX',
-			'XXX.XX.XXX.XX',
-			'XXX.XX.XXX.XX',
-			'XXX.XX.XXX.XX',
+			'169.57.141.90',
+			'169.57.141.88',
+			'169.57.141.86',
+			'169.57.169.70',
+			'169.57.169.72',
+			'169.57.141.85',
+			'169.57.169.85',
+			'169.57.169.91',
+			'169.57.169.73',
+			'169.57.141.94',
 		]
 		self.Val = {
 			'Cerificado SSL' : True,
@@ -307,8 +307,7 @@ def Validador(arquivo):
 				arrayUrl.append(i.strip("\n").strip(" "))
 			desc = 'Validando links' if lang == 0 else 'Checking the links'
 			for url in tqdm(arrayUrl, desc=desc):
-				value = validador.Inicializa(url, 'servidor', False)
-		return True
+				validador.Inicializa(url, thread=False)
 	except:
 		return False
 
