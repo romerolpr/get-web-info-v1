@@ -1,5 +1,5 @@
-# PT = 0
-# EN = 1
+# pt-BR = 0 / en = 1
+# Powered by Lucas Romero, Nov 2020 
 
 lang = 0
 
@@ -19,16 +19,16 @@ class Validador:
 		self.lang = lang
 		self.path = 'Resultados' if self.lang == 0 else 'Results'
 		self.servidores = [
-			'169.57.141.90',
-			'169.57.141.88',
-			'169.57.141.86',
-			'169.57.169.70',
-			'169.57.169.72',
-			'169.57.141.85',
-			'169.57.169.85',
-			'169.57.169.91',
-			'169.57.169.73',
-			'169.57.141.94',
+			'XXX.XX.XXX.XX',
+			'XXX.XX.XXX.XX',
+			'XXX.XX.XXX.XX',
+			'XXX.XX.XXX.XX',
+			'XXX.XX.XXX.XX',
+			'XXX.XX.XXX.XX',
+			'XXX.XX.XXX.XX',
+			'XXX.XX.XXX.XX',
+			'XXX.XX.XXX.XX',
+			'XXX.XX.XXX.XX',
 		]
 		self.Val = {
 			'Cerificado SSL' : True,
@@ -38,7 +38,7 @@ class Validador:
 
 		Path(f'./{self.path}').mkdir(parents=True, exist_ok=True)
 
-	def Set_language(self, config=False):
+	def Idioma(self, config=False):
 
 		Sitemap = [
 			'Fora do servidor',
@@ -91,12 +91,25 @@ class Validador:
 			'SSL not active', 
 			'Not recovered'
 		]
+
+		Recaptcha = [
+			'Fora do servidor', 
+			'Erro de recaptcha', 
+			'Recaptcha em funcionamento',
+			'Não recuperado'
+		] if self.lang == 0 else [
+			'Off the server', 
+			'Recaptcha error', 
+			'Recaptcha\'s working', 
+			'Not recovered'
+		]
 		
 		return {
 			'sitemap'	: Sitemap,
 			'tag'		: Tag,
 			'servidor'	: Servidor,
-			'ssl'		: SSL	
+			'ssl'		: SSL,
+			'recaptcha' : Recaptcha
 		}[config]
 
 	def Base(self, url, www=True):
@@ -122,7 +135,7 @@ class Validador:
 		try:
 			Path(f'./{self.path}/' + Def).mkdir(parents=True, exist_ok=True)
 			if self.Saiu(url):
-				with open(self.path + f'/{Def}/' + self.Set_language(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
+				with open(self.path + f'/{Def}/' + self.Idioma(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
 					file.write('{} => {}\n'.format(url, self.Saiu(url)))
 			else:
 				try:
@@ -130,21 +143,21 @@ class Validador:
 					html = BeautifulSoup(request, "html5lib");
 					try:
 						script = re.search(r"ga\('(create)',\s+'(.*?)',(.*?)\s+'(.*?)'\);", str(html.body)).group(2)
-						with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', 'a', encoding='utf-8') as file:
+						with open(self.path + f'/{Def}/' + self.Idioma(Def)[1] + '.txt', 'a', encoding='utf-8') as file:
 							file.write(f'{url}: {script}\n')
 					except:
 						try:
 							script = re.search(r"gtag\([\"\']config[\"\'].*?[\"\'](.*?)[\"\']\);", str(html.body)).group(1)
-							with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', 'a', encoding='utf-8') as file:
+							with open(self.path + f'/{Def}/' + self.Idioma(Def)[1] + '.txt', 'a', encoding='utf-8') as file:
 								file.write(f'{url}: {script}\n')
 						except:
-							with open(self.path + f'/{Def}/' + self.Set_language(Def)[2] + '.txt', 'a', encoding='utf-8') as file:
+							with open(self.path + f'/{Def}/' + self.Idioma(Def)[2] + '.txt', 'a', encoding='utf-8') as file:
 								file.write(f'{url}\n')
 				except:
-					with open(self.path + f'/{Def}/' + self.Set_language(Def)[3] + '.txt', 'a', encoding='utf-8') as file:
+					with open(self.path + f'/{Def}/' + self.Idioma(Def)[3] + '.txt', 'a', encoding='utf-8') as file:
 						file.write(f'{url}\n')
 		except:
-			with open(self.path + f'/{Def}/' + self.Set_language(Def)[4] + '.txt', 'a', encoding='utf-8') as file:
+			with open(self.path + f'/{Def}/' + self.Idioma(Def)[4] + '.txt', 'a', encoding='utf-8') as file:
 				file.write(f'{url}\n')
 
 	def Servidor(self, url):
@@ -152,13 +165,13 @@ class Validador:
 		try:
 			Path(f'./{self.path}/' + Def).mkdir(parents=True, exist_ok=True)
 			if self.Saiu(url):
-				with open(self.path + f'/{Def}/' + self.Set_language(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
+				with open(self.path + f'/{Def}/' + self.Idioma(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
 					file.write('{} => {}\n'.format(url, self.Saiu(url)))
 			else:
-				with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', "a", -1, encoding='utf-8') as file:
+				with open(self.path + f'/{Def}/' + self.Idioma(Def)[1] + '.txt', "a", -1, encoding='utf-8') as file:
 					file.write(f'{url} => {self.Saiu(url, test=True)}\n')
 		except:
-			with open(self.path + f'/{Def}/' + self.Set_language(Def)[2] + '.txt', 'a', encoding='utf-8') as file:
+			with open(self.path + f'/{Def}/' + self.Idioma(Def)[2] + '.txt', 'a', encoding='utf-8') as file:
 				file.write(f'{url}\n')
 
 	def Certificado_SSL(self, url):
@@ -166,18 +179,18 @@ class Validador:
 		try:
 			Path(f'./{self.path}/' + Def).mkdir(parents=True, exist_ok=True)
 			if self.Saiu(url):
-				with open(self.path + f'/{Def}/' + self.Set_language(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
+				with open(self.path + f'/{Def}/' + self.Idioma(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
 					file.write('{} => {}\n'.format(url, self.Saiu(url)))
 			else:
 				try:
 					request = urlopen(f"https://www.{url}/").read()
-					with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', "a", -1, encoding='utf-8') as file:
+					with open(self.path + f'/{Def}/' + self.Idioma(Def)[1] + '.txt', "a", -1, encoding='utf-8') as file:
 						file.write(f'{url}\n')
 				except:
-					with open(self.path + f'/{Def}/' + self.Set_language(Def)[2] + '.txt', "a", -1, encoding='utf-8') as file:
+					with open(self.path + f'/{Def}/' + self.Idioma(Def)[2] + '.txt', "a", -1, encoding='utf-8') as file:
 						file.write(f'{url}\n')
 		except:
-			with open(self.path + f'/{Def}/' + self.Set_language(Def)[3] + '.txt', 'a', encoding='utf-8') as file:
+			with open(self.path + f'/{Def}/' + self.Idioma(Def)[3] + '.txt', 'a', encoding='utf-8') as file:
 				file.write(f'{url}\n')
 
 	def Sitemap(self, url):
@@ -188,7 +201,7 @@ class Validador:
 		try:
 			Path(f'./{self.path}/' + Def).mkdir(parents=True, exist_ok=True)
 			if self.Saiu(url):
-				with open(self.path + f'/{Def}/' + self.Set_language(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
+				with open(self.path + f'/{Def}/' + self.Idioma(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
 					file.write('{} => {}\n'.format(url, self.Saiu(url)))
 			else:
 				try:
@@ -205,97 +218,87 @@ class Validador:
 
 					if sitemap[0]:
 						if len(sitemap[0]) in range(20, 10001):
-							with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+							with open(self.path + f'/{Def}/' + self.Idioma(Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
 								arquivo.write(f'{url} => https://www\n')
 						else:
-							with open(self.path + f'/{Def}/' + self.Set_language(Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+							with open(self.path + f'/{Def}/' + self.Idioma(Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
 								arquivo.write(f'{url}\n')
 						
 					elif sitemap[1]:
 						if len(sitemap[1]) in range(20, 10001):
-							with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+							with open(self.path + f'/{Def}/' + self.Idioma(Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
 								arquivo.write(f'{url} => https://\n')
 						else:
-							with open(self.path + f'/{Def}/' + self.Set_language(Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+							with open(self.path + f'/{Def}/' + self.Idioma(Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
 								arquivo.write(f'{url}\n')
 							
 					elif sitemap[2]:
 						if len(sitemap[2]) in range(20, 10001):
-							with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+							with open(self.path + f'/{Def}/' + self.Idioma(Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
 								arquivo.write(f'{url} => http://\n')
 						else:
-							with open(self.path + f'/{Def}/' + self.Set_language(Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+							with open(self.path + f'/{Def}/' + self.Idioma(Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
 								arquivo.write(f'{url}\n')
 								
 					elif sitemap[3]:
 						if len(sitemap[3]) in range(20, 10001):
-							with open(self.path + f'/{Def}/' + self.Set_language(Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+							with open(self.path + f'/{Def}/' + self.Idioma(Def)[1] + '.txt', "a", -1, encoding='utf-8') as arquivo:
 								arquivo.write(f'{url} => http://www\n')
 						else:
-							with open(self.path + f'/{Def}/' + self.Set_language(Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
+							with open(self.path + f'/{Def}/' + self.Idioma(Def)[2] + '.txt', "a", -1, encoding='utf-8') as arquivo:
 								arquivo.write(f'{url}\n')
 					else:
-						with open(self.path + f'/{Def}/' + self.Set_language(Def)[3] + '.txt', 'a', encoding='utf-8') as file:
+						with open(self.path + f'/{Def}/' + self.Idioma(Def)[3] + '.txt', 'a', encoding='utf-8') as file:
 							file.write(f'{url}\n')
 
 				except:
-					with open(self.path + f'/{Def}/' + self.Set_language(Def)[4] + '.txt', 'a', encoding='utf-8') as file:
+					with open(self.path + f'/{Def}/' + self.Idioma(Def)[4] + '.txt', 'a', encoding='utf-8') as file:
 						file.write(f'{url}\n')
 		except:
-			with open(self.path + f'/{Def}/' + self.Set_language(Def)[5] + '.txt', 'a', encoding='utf-8') as file:
+			with open(self.path + f'/{Def}/' + self.Idioma(Def)[5] + '.txt', 'a', encoding='utf-8') as file:
 				file.write(f'{url}\n')
 
-	def Start(self, url, case=False):
+
+	def Inicializa(self, url, case=False, thread=True):
 		try:
+
+			def Select(function, args, method):
+				return {
+					'certificado ssl'	: validador.Certificado_SSL(args) if method else threading.Thread(target=validador.Certificado_SSL, args=(url,)).start(),
+					'servidor'			: validador.Servidor(args) if method else threading.Thread(target=validador.Servidor, args=(url,)).start(),
+					'tag'				: validador.Tag(args) if method else threading.Thread(target=validador.Tag, args=(url,)).start(),
+					'sitemap'			: validador.Sitemap(args) if method else threading.Thread(target=validador.Sitemap, args=(url,)).start()
+				}[function]
+
 			if not case:
 				if self.Val['Cerificado SSL']:
 					threading.Thread(
 					    target=validador.Certificado_SSL,
-					    args=(url,)).start()
-				if self.Val['Tag']:
-					threading.Thread(
-					    target=validador.Tag,
-					    args=(url,)).start()
+					    args=(url,)).start() if thread else validador.Certificado_SSL(url)
 				if self.Val['Sitemap']:
 					threading.Thread(
 					    target=validador.Sitemap,
-					    args=(url,)).start()
+					    args=(url,)).start() if thread else validador.Sitemap(url)
+				if self.Val['Tag']:
+					threading.Thread(
+					    target=validador.Tag,
+					    args=(url,)).start() if thread else validador.Tag(url)
 			else:
-				itens = case.split(',')
 				try:
+
+					itens = case.strip().split(',')
 					for i in itens:
-						if i.lower() == 'certificado ssl' or itens.lower() == 'certificado ssl':
-							threading.Thread(
-							    target=validador.Certificado_SSL,
-							    args=(url,)).start()
-						if i.lower() == 'servidor' or itens.lower() == 'servidor':
-							threading.Thread(
-							    target=validador.Servidor,
-							    args=(url,)).start()
-						if i.lower() == 'saiu' or itens.lower() == 'saiu':
-							threading.Thread(
-							    target=validador.Saiu,
-							    args=(url,)).start()
-						if i.lower() == 'tag' or itens.lower() == 'tag':
-							threading.Thread(
-							    target=validador.Saiu,
-							    args=(url,)).start()
-						if i.lower() == 'sitemap' or itens.lower() == 'sitemap':
-							threading.Thread(
-							    target=validador.Saiu,
-							    args=(url,)).start()
+
+						Select(i.strip().lower(), url, 0 if thread else 1)
+
 				except:
-					res = 'Não foi possível iniciar os módulos indicados.' if self.lang == 0 else 'We couldn\'t start the methods given.'
-					res += '\nIniciando validação padrão...' if self.lang == 0 else 'Starting standard modules...'
-					self.Start(url, False)
+					return 'Não foi possível iniciar os módulos indicados.' if self.lang == 0 else 'We couldn\'t start the methods given.'
 		except:
-			res = 'Não foi possível iniciar os métodos.' if self.lang == 0 else 'Unable to start modules.'
-			
-		return res
+			return 'Não foi possível iniciar os métodos.' if self.lang == 0 else 'Unable to start modules.'
 
 validador = Validador(lang)
 
-def crawler(arquivo):  
+def Validador(arquivo):  
 	try:
 		with open(f"{arquivo}.txt", "r", encoding='utf-8') as sites:
 			linha = sites.readlines()
@@ -304,13 +307,12 @@ def crawler(arquivo):
 				arrayUrl.append(i.strip("\n").strip(" "))
 			desc = 'Validando links' if lang == 0 else 'Checking the links'
 			for url in tqdm(arrayUrl, desc=desc):
-				validador.Start(url)
-				
+				value = validador.Inicializa(url, 'servidor', False)
 		return True
 	except:
 		return False
 
-if crawler('sites'):
+if Validador('sites'):
 	print('\nEscrevendo dados...' if lang == 0 else '\nWriting data...')
 else:
 	input('\nFalha.' if lang == 0 else '\nFail.')
