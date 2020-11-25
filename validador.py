@@ -1,5 +1,5 @@
+# Choice for yout preference language 
 # pt-BR = 0 / en = 1
-# Powered by Lucas Romero, Nov 2020 
 
 lang = 0
 
@@ -8,7 +8,6 @@ from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from colorama import Fore, Style
 from pathlib import Path
-
 import threading
 import re
 import socket
@@ -19,21 +18,17 @@ class Validador:
 		self.lang = lang
 		self.path = 'Resultados' if self.lang == 0 else 'Results'
 		self.servidores = [
-			'169.57.141.90',
-			'169.57.141.88',
-			'169.57.141.86',
-			'169.57.169.70',
-			'169.57.169.72',
-			'169.57.141.85',
-			'169.57.169.85',
-			'169.57.169.91',
-			'169.57.169.73',
-			'169.57.141.94',
+			'XXX.XX.XXX.XX',
+			'XXX.XX.XXX.XX',
+			'XXX.XX.XXX.XX',
 		]
 		self.Val = {
 			'Cerificado SSL' : True,
 			'Tag'			 : True,
 			'Sitemap'		 : True,
+			'Recaptcha'		 : True,
+			'Sitename'		 : True,
+			'Email'		 	 : True,
 		}
 
 		Path(f'./{self.path}').mkdir(parents=True, exist_ok=True)
@@ -103,13 +98,39 @@ class Validador:
 			'Recaptcha\'s working', 
 			'Not recovered'
 		]
+
+		Email = [
+			'Fora do servidor', 
+			'Email @doutoresdaweb', 
+			'Email correto',
+			'Não recuperado'
+		] if self.lang == 0 else [
+			'Off the server', 
+			'Email @doutoresdaweb', 
+			'Email correct', 
+			'Not recovered'
+		]
+
+		Sitename = [
+			'Fora do servidor', 
+			'Contém Doutores da web', 
+			'Nome correto',
+			'Não recuperado'
+		] if self.lang == 0 else [
+			'Off the server', 
+			'Contains Doutores da web', 
+			'Sitename is correct', 
+			'Not recovered'
+		]
 		
 		return {
 			'sitemap'	: Sitemap,
 			'tag'		: Tag,
 			'servidor'	: Servidor,
 			'ssl'		: SSL,
-			'recaptcha' : Recaptcha
+			'recaptcha' : Recaptcha,
+			'email'		: Email,
+			'sitename'	: Sitename
 		}[config]
 
 	def Base(self, url, www=True):
@@ -129,6 +150,13 @@ class Validador:
 			return IP
 		else:
 			return False if not test else IP
+
+	def Check_Key(self, recaptcha, url):
+		with open(f'Modules/data-recaptcha/{recaptcha}.txt', 'r', encoding='utf-8') as f:
+			linha = f.readlines()
+			for sites in linha:
+				if url in sites: return url
+		return False
 
 	def Tag(self, url):
 		Def = 'tag'
@@ -258,18 +286,74 @@ class Validador:
 			with open(self.path + f'/{Def}/' + self.Idioma(Def)[5] + '.txt', 'a', encoding='utf-8') as file:
 				file.write(f'{url}\n')
 
+	def Recaptcha(self, url):			
+		Def = 'recaptcha'
+		Path(f'./{self.path}/' + Def).mkdir(parents=True, exist_ok=True)
+		if self.Saiu(url):
+			with open(self.path + f'/{Def}/' + self.Idioma(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
+				file.write('{} => {}\n'.format(url, self.Saiu(url)))
+		else:
+			try:
+				request = urlopen(f'http://www.{url}/contato').read()
+				html = BeautifulSoup(request, "html5lib")
+				g_recaptcha = re.search(r'data-sitekey=[\"\'](.*?)[\"\']', str(html.select('.form .g-recaptcha'))).group(1)
+				if not self.Check_Key(g_recaptcha, url):
+					with open(self.path + f'/{Def}/' + self.Idioma(Def)[1] + '.txt', 'a', encoding='utf-8') as file:
+						file.write(f'{url} => {g_recaptcha}\n')
+				else:
+					with open(self.path + f'/{Def}/' + self.Idioma(Def)[2] + '.txt', 'a', encoding='utf-8') as file:
+						file.write(f'{url} => {g_recaptcha}\n')
+			except:
+				with open(self.path + f'/{Def}/' + self.Idioma(Def)[3] + '.txt', 'a', encoding='utf-8') as file:
+					file.write(f'{url}\n')
+
+	def Sitename(self, url):
+		Def = 'sitename'
+		Path(f'./{self.path}/' + Def).mkdir(parents=True, exist_ok=True)
+		if self.Saiu(url):
+			with open(self.path + f'/{Def}/' + self.Idioma(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
+				file.write('{} => {}\n'.format(url, self.Saiu(url)))
+		else:
+			try:
+				request = urlopen(f'http://www.{url}/').read()
+				html = BeautifulSoup(request, "html5lib")
+				meta = re.search(r'content=[\"\'](.*?)[\"\']', str(html.select('head meta[property="og:site_name"]'))).group(1)
+				if 'doutores da web' in meta.lower().strip():
+					with open(self.path + f'/{Def}/' + self.Idioma(Def)[1] + '.txt', 'a', encoding='utf-8') as file:
+						file.write(f'{url} => {meta}\n')
+				else:
+					with open(self.path + f'/{Def}/' + self.Idioma(Def)[2] + '.txt', 'a', encoding='utf-8') as file:
+						file.write(f'{url} => {meta}\n')
+			except:
+				with open(self.path + f'/{Def}/' + self.Idioma(Def)[3] + '.txt', 'a', encoding='utf-8') as file:
+					file.write(f'{url}\n')
+
+	def Email(self, url):
+		Def = 'email'
+		Path(f'./{self.path}/' + Def).mkdir(parents=True, exist_ok=True)
+		if self.Saiu(url):
+			with open(self.path + f'/{Def}/' + self.Idioma(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
+				file.write('{} => {}\n'.format(url, self.Saiu(url)))
+		else:
+			try:
+				request = urlopen(f'http://www.{url}/').read()
+				html = BeautifulSoup(request, "html5lib")
+				script = re.search(r'[\w.-]+@[\w.-]+.\w+', str(html.body)).group(0)
+				if 'doutoresdaweb.com.br' in script.lower().strip():
+					with open(self.path + f'/{Def}/' + self.Idioma(Def)[1] + '.txt', 'a', encoding='utf-8') as file:
+						file.write(f'{url} => {script}\n')
+				else:
+					with open(self.path + f'/{Def}/' + self.Idioma(Def)[2] + '.txt', 'a', encoding='utf-8') as file:
+						file.write(f'{url} => {script}\n')
+			except:
+				with open(self.path + f'/{Def}/' + self.Idioma(Def)[3] + '.txt', 'a', encoding='utf-8') as file:
+					file.write(f'{url}\n')
 
 	def Inicializa(self, url, case=False, thread=True):
+
+		itens = case.strip().split(',')
+
 		try:
-
-			def Select(function, args, method):
-				return {
-					'certificado ssl'	: validador.Certificado_SSL(args) if method else threading.Thread(target=validador.Certificado_SSL, args=(url,)).start(),
-					'servidor'			: validador.Servidor(args) if method else threading.Thread(target=validador.Servidor, args=(url,)).start(),
-					'tag'				: validador.Tag(args) if method else threading.Thread(target=validador.Tag, args=(url,)).start(),
-					'sitemap'			: validador.Sitemap(args) if method else threading.Thread(target=validador.Sitemap, args=(url,)).start()
-				}[function]
-
 			if not case:
 				if self.Val['Cerificado SSL']:
 					threading.Thread(
@@ -283,14 +367,37 @@ class Validador:
 					threading.Thread(
 					    target=validador.Tag,
 					    args=(url,)).start() if thread else validador.Tag(url)
+				if self.Val['Recaptcha']:
+					threading.Thread(
+					    target=validador.Recaptcha,
+					    args=(url,)).start() if thread else validador.Recaptcha(url)
+				if self.Val['Email']:
+					threading.Thread(
+					    target=validador.Email,
+					    args=(url,)).start() if thread else validador.Email(url)
+				if self.Val['Sitename']:
+					threading.Thread(
+					    target=validador.Sitename,
+					    args=(url,)).start() if thread else validador.Sitename(url)
 			else:
 				try:
-
-					itens = case.strip().split(',')
 					for i in itens:
-
-						Select(i.strip().lower(), url, 0 if thread else 1)
-
+						if not thread:
+							if 'certificado ssl' 	== i.lower().strip(): validador.Certificado_SSL(url)
+							if 'servidor' 			== i.lower().strip(): validador.Servidor(url)
+							if 'tag' 				== i.lower().strip(): validador.Tag(url)
+							if 'sitemap' 			== i.lower().strip(): validador.Sitemap(url)
+							if 'email' 				== i.lower().strip(): validador.Email(url)
+							if 'sitename' 			== i.lower().strip(): validador.Sitename(url)
+							if 'recaptcha' 			== i.lower().strip(): validador.Recaptcha(url)
+						else:
+							if 'certificado ssl' 	== i.lower().strip(): threading.Thread(target=validador.Certificado_SSL, args=(url,)).start()
+							if 'servidor' 			== i.lower().strip(): threading.Thread(target=validador.Servidor, args=(url,)).start()
+							if 'tag' 				== i.lower().strip(): threading.Thread(target=validador.Tag, args=(url,)).start()
+							if 'sitemap' 			== i.lower().strip(): threading.Thread(target=validador.Sitemap, args=(url,)).start()
+							if 'email' 				== i.lower().strip(): threading.Thread(target=validador.Email, args=(url,)).start()
+							if 'sitename' 			== i.lower().strip(): threading.Thread(target=validador.Sitename, args=(url,)).start()
+							if 'recaptcha' 			== i.lower().strip(): threading.Thread(target=validador.Recaptcha, args=(url,)).start()
 				except:
 					return 'Não foi possível iniciar os módulos indicados.' if self.lang == 0 else 'We couldn\'t start the methods given.'
 		except:
@@ -302,12 +409,36 @@ def Validador(arquivo):
 	try:
 		with open(f"{arquivo}.txt", "r", encoding='utf-8') as sites:
 			linha = sites.readlines()
-			arrayUrl = []
-			for i in linha:
-				arrayUrl.append(i.strip("\n").strip(" "))
+
 			desc = 'Validando links' if lang == 0 else 'Checking the links'
-			for url in tqdm(arrayUrl, desc=desc):
-				validador.Inicializa(url, thread=False)
+			arrayUrl = {
+				0: [], 1: [], 2: [], 3: [], 4: []
+			}
+
+			for i, line in enumerate(linha):
+				
+				divide = int(len(linha)) / int(len(arrayUrl))
+
+				if len(linha) > 500:
+					if i in range((int(divide) * 0) + 0, int(divide * 1)):
+						arrayUrl[0].append(line.strip('\n').strip(' '))
+					if i in range((int(divide) * 1) + 1, int(divide * 2) + 1):
+						arrayUrl[1].append(line.strip('\n').strip(' '))
+					if i in range((int(divide) * 2) + 1, int(divide * 3) + 1):
+						arrayUrl[2].append(line.strip('\n').strip(' '))
+					if i in range((int(divide) * 3) + 1, int(divide * 4) + 1):
+						arrayUrl[3].append(line.strip('\n').strip(' '))
+					if i in range((int(divide) * 4) + 1, int(divide * 5) + 1):
+						arrayUrl[4].append(line.strip('\n').strip(' '))
+				else:
+					arrayUrl[0].append(line.strip('\n').strip(' '))
+
+			for Array in arrayUrl.keys():
+				if len(arrayUrl[Array]) > 0:
+					for url in tqdm(arrayUrl[Array], desc=desc):
+						validador.Inicializa(url, thread=False)
+						
+			return True
 	except:
 		return False
 
