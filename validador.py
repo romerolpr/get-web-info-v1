@@ -1,7 +1,7 @@
 # Choice for yout preference language 
 # pt-BR = 0 / en = 1
 
-lang = 0
+lang = 1
 
 from tqdm.auto import tqdm
 from bs4 import BeautifulSoup
@@ -18,6 +18,7 @@ class Validador:
 		self.lang = lang
 		self.path = 'Resultados' if self.lang == 0 else 'Results'
 		self.servidores = [
+			'XXX.XX.XXX.XX',
 			'XXX.XX.XXX.XX',
 			'XXX.XX.XXX.XX',
 			'XXX.XX.XXX.XX',
@@ -351,8 +352,6 @@ class Validador:
 
 	def Inicializa(self, url, case=False, thread=True):
 
-		itens = case.strip().split(',')
-
 		try:
 			if not case:
 				if self.Val['Cerificado SSL']:
@@ -380,6 +379,7 @@ class Validador:
 					    target=validador.Sitename,
 					    args=(url,)).start() if thread else validador.Sitename(url)
 			else:
+				itens = case.strip().split(',')
 				try:
 					for i in itens:
 						if not thread:
@@ -437,7 +437,7 @@ def Validador(arquivo):
 				if len(arrayUrl[Array]) > 0:
 					for url in tqdm(arrayUrl[Array], desc=desc):
 						validador.Inicializa(url, thread=False)
-						
+
 			return True
 	except:
 		return False
