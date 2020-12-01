@@ -1,4 +1,4 @@
-# Choice for yout preference language 
+# Choice for your preference language 
 # pt-BR = 0 / en = 1
 
 lang = 1
@@ -8,20 +8,21 @@ from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from colorama import Fore, Style
 from pathlib import Path
+from datetime import datetime
 import threading
 import re
+import os
 import socket
 
 class Validador:
 
 	def __init__(self, lang=0):
 		self.lang = lang
-		self.path = 'Resultados' if self.lang == 0 else 'Results'
+		self.hoje = datetime.now().strftime("%d-%m-%Y") if self.lang == 0 else datetime.now().strftime("%Y-%m-%d")
+		self.path = f'Resultados/{self.hoje}' if self.lang == 0 else f'Results/{self.hoje}'
 		self.servidores = [
-			'XXX.XX.XXX.XX',
-			'XXX.XX.XXX.XX',
-			'XXX.XX.XXX.XX',
-			'XXX.XX.XXX.XX',
+			'XXX','YY','ZZZ','WW'
+			'YYY','XX','YYY','ZZ'
 		]
 		self.Val = {
 			'Cerificado SSL' : True,
@@ -127,7 +128,7 @@ class Validador:
 		return {
 			'sitemap'	: Sitemap,
 			'tag'		: Tag,
-			'servidor'	: Servidor,
+			'server'	: Servidor,
 			'ssl'		: SSL,
 			'recaptcha' : Recaptcha,
 			'email'		: Email,
@@ -138,19 +139,13 @@ class Validador:
 		try:
 			url = url.split('//')
 			url = url[1].split('/')
-			if www:
-				return url[0]
-			else:
-				return url[0].replace('www.', '')
+			return url[0] if www else url[0].replace('www.', '')
 		except:
 			return url[0]
 
 	def Saiu(self, url, test = False):
 		IP = socket.gethostbyname(self.Base(url))
-		if IP not in self.servidores:
-			return IP
-		else:
-			return False if not test else IP
+		return IP if IP not in self.servidores else False if not test else IP
 
 	def Check_Key(self, recaptcha, url):
 		with open(f'Modules/data-recaptcha/{recaptcha}.txt', 'r', encoding='utf-8') as f:
@@ -190,7 +185,7 @@ class Validador:
 				file.write(f'{url}\n')
 
 	def Servidor(self, url):
-		Def = 'servidor' if self.lang == 0 else 'server'
+		Def = 'server'
 		try:
 			Path(f'./{self.path}/' + Def).mkdir(parents=True, exist_ok=True)
 			if self.Saiu(url):
@@ -212,7 +207,7 @@ class Validador:
 					file.write('{} => {}\n'.format(url, self.Saiu(url)))
 			else:
 				try:
-					request = urlopen(f"https://www.{url}/").read()
+					request = urlopen(f"https://www.{url}/").read() if 'www' not in url else urlopen(f"https://{url}/").read()
 					with open(self.path + f'/{Def}/' + self.Idioma(Def)[1] + '.txt', "a", -1, encoding='utf-8') as file:
 						file.write(f'{url}\n')
 				except:
@@ -235,7 +230,7 @@ class Validador:
 			else:
 				try:
 
-					request = urlopen('{}sitemap.xml'.format(http[0])).read()
+					request = urlopen(f'{http[3]}sitemap.xml').read()
 					html = BeautifulSoup(request, "html5lib")
 
 					sitemap = [
@@ -404,13 +399,14 @@ class Validador:
 			return 'Não foi possível iniciar os métodos.' if self.lang == 0 else 'Unable to start modules.'
 
 validador = Validador(lang)
+clear = lambda: os.system('cls')
 
-def Validador(arquivo):  
+def Validador(arquivo, select=False, thread=False):  
 	try:
 		with open(f"{arquivo}.txt", "r", encoding='utf-8') as sites:
 			linha = sites.readlines()
 
-			desc = 'Validando links' if lang == 0 else 'Checking the links'
+			desc = 'Verificando sites' if lang == 0 else 'Checking the sites'
 			arrayUrl = {
 				0: [], 1: [], 2: [], 3: [], 4: []
 			}
@@ -420,6 +416,7 @@ def Validador(arquivo):
 				divide = int(len(linha)) / int(len(arrayUrl))
 
 				if len(linha) > 500:
+					count = 5
 					if i in range((int(divide) * 0) + 0, int(divide * 1)):
 						arrayUrl[0].append(line.strip('\n').strip(' '))
 					if i in range((int(divide) * 1) + 1, int(divide * 2) + 1):
@@ -431,18 +428,24 @@ def Validador(arquivo):
 					if i in range((int(divide) * 4) + 1, int(divide * 5) + 1):
 						arrayUrl[4].append(line.strip('\n').strip(' '))
 				else:
-					arrayUrl[0].append(line.strip('\n').strip(' '))
+					count = 1
+					arrayUrl[0].append(line.strip('\n').strip(' '))	
 
-			for Array in arrayUrl.keys():
+			for i, Array in enumerate(arrayUrl.keys()):
+				step = f'Etapa {i + 1}/{str(count)}: {desc}' if lang == 0 else f'Step {i + 1}/{str(count)}: {desc}'
 				if len(arrayUrl[Array]) > 0:
-					for url in tqdm(arrayUrl[Array], desc=desc):
-						validador.Inicializa(url, thread=False)
+					for url in tqdm(arrayUrl[Array], unit=' sites', desc=step, leave=False):
+						validador.Inicializa(url, case=select, thread=thread)
 
 			return True
 	except:
 		return False
 
-if Validador('sites'):
+Crawler = Validador('sites', thread=False)
+
+if Crawler:
 	print('\nEscrevendo dados...' if lang == 0 else '\nWriting data...')
+	clear()
+	input('Finalizado.' if lang == 0 else '\nFinished.')
 else:
-	input('\nFalha.' if lang == 0 else '\nFail.')
+	input('Falha.' if lang == 0 else '\nFail.')
