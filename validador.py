@@ -21,8 +21,13 @@ class Validador:
 		self.hoje = datetime.now().strftime("%d-%m-%Y") if self.lang == 0 else datetime.now().strftime("%Y-%m-%d")
 		self.path = f'Resultados/{self.hoje}' if self.lang == 0 else f'Results/{self.hoje}'
 		self.servidores = [
-			'XXX','YY','ZZZ','WW'
-			'YYY','XX','YYY','ZZ'
+			'XXX.XXX.XX.XXX',
+			'XXX.XXX.XX.XXX',
+			'XXX.XXX.XX.XXX',
+			'XXX.XXX.XX.XXX',
+			'XXX.XXX.XX.XXX',
+			'XXX.XXX.XX.XXX',
+			'XXX.XXX.XX.XXX',
 		]
 		self.Val = {
 			'Cerificado SSL' : True,
@@ -33,6 +38,7 @@ class Validador:
 			'Email'		 	 : True,
 		}
 
+		open('./sites.txt', 'w', encoding='utf-8').close() if not os.path.isfile('./sites.txt') else None
 		Path(f'./{self.path}').mkdir(parents=True, exist_ok=True)
 
 	def Idioma(self, config=False):
@@ -401,7 +407,8 @@ class Validador:
 validador = Validador(lang)
 clear = lambda: os.system('cls')
 
-def Validador(arquivo, select=False, thread=False):  
+def Validador(arquivo, validar=False, thread=False):  
+	validar = False if 'todos' == validar.lower() else validar
 	try:
 		with open(f"{arquivo}.txt", "r", encoding='utf-8') as sites:
 			linha = sites.readlines()
@@ -410,6 +417,7 @@ def Validador(arquivo, select=False, thread=False):
 			arrayUrl = {
 				0: [], 1: [], 2: [], 3: [], 4: []
 			}
+			total = 0
 
 			for i, line in enumerate(linha):
 				
@@ -434,18 +442,18 @@ def Validador(arquivo, select=False, thread=False):
 			for i, Array in enumerate(arrayUrl.keys()):
 				step = f'Etapa {i + 1}/{str(count)}: {desc}' if lang == 0 else f'Step {i + 1}/{str(count)}: {desc}'
 				if len(arrayUrl[Array]) > 0:
+					total += len(arrayUrl[Array])
 					for url in tqdm(arrayUrl[Array], unit=' sites', desc=step, leave=False):
-						validador.Inicializa(url, case=select, thread=thread)
-
-			return True
+						validador.Inicializa(url, case=validar, thread=thread)
+			return f'Total de domínios verificados: {total}' if lang == 0 else f'Domains checked: {total}'
 	except:
 		return False
 
-Crawler = Validador('sites', thread=False)
+Crawler = Validador('sites', validar='todos')
 
 if Crawler:
-	print('\nEscrevendo dados...' if lang == 0 else '\nWriting data...')
+	print('Escrevendo dados...' if lang == 0 else 'Writing data...')
 	clear()
-	input('Finalizado.' if lang == 0 else '\nFinished.')
+	input(f'{Crawler}\nFinalizado.' if lang == 0 else f'{Crawler}\nFinished.')
 else:
-	input('Falha.' if lang == 0 else '\nFail.')
+	input('Erro 500: Não foi possível inicializar o sistema.' if lang == 0 else 'Error 500: We couldn\'t start the system.')
