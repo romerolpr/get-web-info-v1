@@ -351,7 +351,7 @@ class Validador:
 				with open(self.path + f'/{Def}/' + self.Idioma(Def)[3] + '.txt', 'a', encoding='utf-8') as file:
 					file.write(f'{url}\n')
 
-	def Inicializa(self, url, case=False, thread=True):
+	def Init(self, url, case=False, thread=True):
 
 		try:
 			if not case:
@@ -444,7 +444,7 @@ def Validador(arquivo, validar=False, thread=False):
 				if len(arrayUrl[Array]) > 0:
 					total += len(arrayUrl[Array])
 					for url in tqdm(arrayUrl[Array], unit=' sites', desc=step, leave=False):
-						validador.Inicializa(url, case=validar, thread=thread)
+						validador.Init(url, case=validar, thread=thread)
 			return f'Total de domínios verificados: {total}' if lang == 0 else f'Domains checked: {total}'
 	except:
 		return False
