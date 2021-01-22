@@ -47,7 +47,7 @@ def Validador(arquivo, validar=False, thread=False):
 					total += len(arrayUrl[Array])
 					for url in tqdm(arrayUrl[Array], unit=' sites', desc=step, leave=False):
 						init = validador.Init(url, case=validar, thread=thread)
-					print(f"{step.split("/")[0]} -> OK" if init else init)
+					print("{} -> OK".format(step.split("/")[0]) if init else init)
 			return f'Total de domínios verificados: {total}' if lang == 0 else f'Domains checked: {total}'
 	except:
 		return False
