@@ -8,6 +8,8 @@ from Modules.Config import *
 lang = Rules['Language']
 validador = Validador(lang)
 
+message = "Informe o método de validação desejado" if lang == 0 else "Enter the desired validation method"
+
 def Validador(arquivo, validar=False, thread=False):  
 	try:
 		validar = False if 'todos' == validar.lower() else validar
@@ -47,16 +49,30 @@ def Validador(arquivo, validar=False, thread=False):
 					total += len(arrayUrl[Array])
 					for url in tqdm(arrayUrl[Array], unit=' sites', desc=step, leave=False):
 						init = validador.Init(url, case=validar, thread=thread)
-					print(f"{step.split("/")[0]} -> OK" if init else init)
+					print("{}/{} -> OK".format(step.split("/")[0], str(count)) if init else init)
 			return f'Total de domínios verificados: {total}' if lang == 0 else f'Domains checked: {total}'
-	except:
+	except Exception as error:
+		print(error)
 		return False
 
-Crawler = Validador('sites', validar='certificado ssl')
+while True:
 
-# validador.clear() 
+	M = str(input(f"{message}\n$ "))
 
-if Crawler:
-	input(f'{Crawler}\nFinalizado.' if lang == 0 else f'{Crawler}\nFinished.')
-else:
-	input('Erro 500: Não foi possível inicializar o sistema.' if lang == 0 else 'Error 500: We couldn\'t start the system.')
+	if M in ['email', 'recaptcha', 'redirect', 'server', 'sitemap', 'sitename', 'ssl', 'status', 'tag']:
+		if Validador('sites', validar=M): 
+			input('Finalizado.' if lang == 0 else 'Finished.')
+		else:
+			input('Erro 500: Não foi possível inicializar o sistema.' if lang == 0 else 'Error 500: We couldn\'t start the system.')
+
+	elif "info" in M: 
+		validador.Info()
+	
+	elif "sites" in M:
+		os.system("notepad sites.txt")
+
+	elif "clear" in M:
+		clear()
+
+	elif "exit" in M:
+		break

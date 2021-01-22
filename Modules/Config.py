@@ -1,3 +1,6 @@
+import os
+clear = lambda: os.system("cls")
+
 Rules = {
 
 	'Language': 0,
@@ -17,14 +20,14 @@ Rules = {
 	],
 
 	'Validation': {
-		'Cerificado SSL' : True,
-		'Tag'			 : True,
-		'Sitemap'		 : True,
-		'Servidor'		 : True,	
-		'Recaptcha'		 : True,
-		'Sitename'		 : True,
-		'Email'		 	 : True,
-		'Status'         : True,
+		'Cerificado SSL': True,
+		'Tag': True,
+		'Sitemap': True,
+		'Servidor': True,	
+		'Recaptcha': True,
+		'Sitename': True,
+		'Email'	: True,
+		'Status': True,
+		'Redirect': True,
 	},
-	
 }

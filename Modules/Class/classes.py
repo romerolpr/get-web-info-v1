@@ -1,4 +1,5 @@
 import urllib.request, threading, re, os, socket
+import requests as r
 from ..Config import *
 from tqdm.auto import tqdm
 from bs4 import BeautifulSoup
@@ -118,12 +119,24 @@ class Validador:
 		Status = [
 			'Fora do servidor', 
 			'Online', 
-			'Offline'
+			'Offline',
 			'Inativo',
 		] if self.lang == 0 else [
 			'Off the server', 
 			'Online', 
 			'Offline',
+			'Inactive',
+		]
+
+		Redirect = [
+			'Fora do servidor', 
+			'https', 
+			'http',
+			'Inativo',
+		] if self.lang == 0 else [
+			'Off the server', 
+			'https', 
+			'http',
 			'Inactive',
 		]
 		
@@ -135,7 +148,8 @@ class Validador:
 			'recaptcha' : Recaptcha,
 			'email'		: Email,
 			'sitename'	: Sitename,
-			'status'	: Status
+			'status'	: Status,
+			'redirect'  : Redirect
 		}[config]
 
 	def Create_Path(self, path):
@@ -193,6 +207,34 @@ class Validador:
 		r = urllib.request.urlopen(f'http://www.{url}/').getcode()
 		if r == 200: return r
 		return False
+
+	def Redirect_Tester(self, url, exb=False):
+		req = r.get(f'http://{url}')
+		if exb: return req.url
+		if "https" in req.url: return req.url
+		return False
+
+	def Redirect(self, url):
+		Def = 'redirect'
+		self.Create_Path(Def)
+		if self.Saiu(url):
+			if self.Saiu(url).lower() != 'No response'.lower():
+				with open(self.path + f'/{Def}/' + self.Idioma(Def)[0] + '.txt', "a", -1, encoding='utf-8') as file:
+					file.write('{} => {}\n'.format(url, self.Saiu(url)))
+			else:
+				with open(self.path + f'/{Def}/No response.txt', "a", -1, encoding='utf-8') as file:
+					file.write('{} => {}\n'.format(url, self.Saiu(url)))
+		else:
+			try:
+				if self.Redirect_Tester(url):
+					with open(self.path + f'/{Def}/' + self.Idioma(Def)[1] + '.txt', 'a', encoding='utf-8') as file:
+						file.write(f'{url} => {self.Redirect_Tester(url)}\n')
+				else:
+					with open(self.path + f'/{Def}/' + self.Idioma(Def)[2] + '.txt', 'a', encoding='utf-8') as file:
+						file.write(f'[{self.Saiu(url, test=True)}] {url} => {self.Redirect_Tester(url, exb=True)}\n')
+			except:
+				with open(self.path + f'/{Def}/' + self.Idioma(Def)[3] + '.txt', 'a', encoding='utf-8') as file:
+					file.write(f'{url} => {self.Saiu(url, test=True)}\n')
 
 	def Servidor(self, url):
 		Def = 'server'
@@ -483,6 +525,10 @@ class Validador:
 					threading.Thread(
 					    target=Validador().Status,
 					    args=(url,)).start() if thread else Validador().Status(url)
+				if self.Val['Redirect']:
+					threading.Thread(
+					    target=Validador().Redirect,
+					    args=(url,)).start() if thread else Validador().Redirect(url)
 			else:
 				itens = case.strip().split(',')
 				try:
@@ -496,6 +542,7 @@ class Validador:
 							if 'sitename' 			== i.lower().strip(): Validador().Sitename(url)
 							if 'recaptcha' 			== i.lower().strip(): Validador().Recaptcha(url)
 							if 'status' 			== i.lower().strip(): Validador().Status(url)
+							if 'redirect' 			== i.lower().strip(): Validador().Redirect(url)
 						else:
 							if 'certificado ssl' 	== i.lower().strip(): threading.Thread(target=Validador().Certificado_SSL, args=(url,)).start()
 							if 'servidor' 			== i.lower().strip(): threading.Thread(target=Validador().Servidor, args=(url,)).start()
@@ -505,8 +552,22 @@ class Validador:
 							if 'sitename' 			== i.lower().strip(): threading.Thread(target=Validador().Sitename, args=(url,)).start()
 							if 'recaptcha' 			== i.lower().strip(): threading.Thread(target=Validador().Recaptcha, args=(url,)).start()
 							if 'status' 			== i.lower().strip(): threading.Thread(target=Validador().Status, args=(url,)).start()
+							if 'redirect' 			== i.lower().strip(): threading.Thread(target=Validador().Redirect, args=(url,)).start()
 					return True
 				except:
 					return 'Não foi possível iniciar os módulos indicados.' if self.lang == 0 else 'We couldn\'t start the methods given.'
 		except:
 			return 'Não foi possível iniciar os métodos.' if self.lang == 0 else 'Unable to start modules.'
+
+	def Info(self):
+		print("\n[COMANDO]              [DESC]\n" if self.lang == 0 else "\n[COMMAND]              [DESC]\n")
+		print(" email                   Verifica o tipo de E-mail." if self.lang == 0 else "Checks the type of E-mail.")
+		print(" recaptcha               Verifica o recaptcha." if self.lang == 0 else "Checks the recaptcha.")
+		print(" redirect                Verifica se o htaccess está forçando HTTTPS." if self.lang == 0 else "Checks whether htaccess is forcing HTTTPS.")
+		print(" server                  Verifica em qual servidor o projeto está alocado." if self.lang == 0 else "Checks on which server the project is allocated.")
+		print(" sitemap                 Verifica o sitemap dos projetos." if self.lang == 0 else "Checks the projects sitemap.")
+		print(" sitename                Verifica o nome do site." if self.lang == 0 else "Checks the site name.")
+		print(" ssl                     Verifica status do ssl dos projetos." if self.lang == 0 else "Checks ssl status of projects.")
+		print(" status                  Verifica o status dos projetos no servidor." if self.lang == 0 else "Checks the status of projects on the server.")
+		print(" tag                     Verifica tipo de TAG e status atual." if self.lang == 0 else "Checks TAG type and current status.")
+		print("\n")
